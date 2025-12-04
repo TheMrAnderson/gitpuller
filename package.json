@@ -1,0 +1,27 @@
+{
+  "name": "gitpuller",
+  "version": "1.0.0",
+  "description": "A Node.js tool to pull updates for specified branches in multiple git repositories",
+  "main": "index.js",
+  "bin": {
+    "gitpuller": "index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "lint": "eslint index.js",
+    "lint:fix": "eslint index.js --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "git",
+    "pull",
+    "repositories",
+    "automation"
+  ],
+  "author": "themranderson",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "eslint": "^8.57.1"
+  }
+}
