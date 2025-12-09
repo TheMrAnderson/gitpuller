@@ -142,3 +142,6 @@ vite.config.ts.timestamp-*
 
 # Config file
 config.json
+
+# Snyk Security Extension - AI Rules (auto-generated)
+.github/instructions/snyk_rules.instructions.md

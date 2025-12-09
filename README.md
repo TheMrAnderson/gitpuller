@@ -42,6 +42,14 @@ For help:
 gitpuller --help
 ```
 
+## Publishing
+
+This package is automatically published to npm via GitHub Actions on pushes to the `master` branch. To set up publishing:
+
+1. Create an npm account if you don't have one.
+2. Generate an access token with publish permissions.
+3. Add the token as `NPM_TOKEN` in your repository's secrets (Settings > Secrets and variables > Actions).
+
 ## Configuration
 
 Edit `config.json`:
