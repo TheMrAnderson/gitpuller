@@ -16,7 +16,7 @@ A Node.js cross-platform CLI tool to automatically pull updates for specified de
 
 ## Usage
 
-After installing globally (`npm install -g gitpuller`), run:
+After installing globally (`npm install -g @themranderson/gitpuller`), run:
 
 ```bash
 gitpuller
@@ -44,7 +44,7 @@ gitpuller --help
 
 ## Publishing
 
-This package is automatically published to npm via GitHub Actions on pushes to the `master` branch. To set up publishing:
+This package is automatically published to npm via GitHub Actions on pushes to the `master` branch as `@themranderson/gitpuller`. To set up publishing:
 
 1. Create an npm account if you don't have one.
 2. Generate an access token with publish permissions.

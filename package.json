@@ -1,5 +1,5 @@
 {
-  "name": "gitpuller",
+  "name": "@themranderson/gitpuller",
   "version": "1.0.0",
   "description": "A Node.js tool to pull updates for specified branches in multiple git repositories",
   "main": "index.js",
