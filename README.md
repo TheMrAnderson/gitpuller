@@ -55,7 +55,8 @@ This package is automatically published to npm via GitHub Actions on pushes to t
 Edit `config.json`:
 
 - `rootPath`: The root directory containing your git repositories.
-- `repos`: An object mapping repository folder names to their development branch names.
+- `repos` (optional): An object mapping repository folder names to development branch overrides. Repositories do not need to be listed; all repositories found under `rootPath` are processed. Repositories without an override use `main`, then `master`, when either branch exists.
+- `excludeRepos` (optional): An array of repository folder names to skip. Matching is case-insensitive and applies to automatically discovered and `additionalRepos` repositories.
 - `additionalRepos` (optional): An array of objects with `path` and `branch` for repos outside `rootPath`.
 - `switchToBranch` (optional): Boolean, default `false`. If `true`, switch to the configured branch if not already on it (with stashing and popping).
 
@@ -66,9 +67,11 @@ Example:
   "rootPath": "/path/to/your/repos",
   "switchToBranch": true,
   "repos": {
-    "my-repo": "main",
-    "another-repo": "develop"
+    "legacy-repo": "develop"
   },
+  "excludeRepos": [
+    "repo-to-skip"
+  ],
   "additionalRepos": [
     {
       "path": "/full/path/to/repo/folder",
@@ -95,11 +98,11 @@ node index.js
 The tool will:
 
 - Scan for git repositories under `rootPath` (up to depth 2).
-- For each repository listed in `repos`, switch to the specified branch (stashing changes if necessary), pull updates if available, and switch back.
+- For every discovered repository, use its configured branch override or automatically use `main` or `master` (in that order), switch branches if necessary (stashing changes if configured), pull updates if available, and switch back.
 
 ## Behavior
 
-- Only configured repositories are processed.
+- All discovered repositories are processed unless listed in `excludeRepos`. Use `repos` only for repositories whose development branch is not `main` or `master`.
 - If you're already on the development branch, it will pull if there are remote changes.
 - If on a different branch, it stashes local changes, switches to the dev branch, pulls, switches back, and pops the stash.
 - Errors are logged but don't stop processing other repos.

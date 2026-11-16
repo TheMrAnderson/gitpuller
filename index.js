@@ -14,6 +14,8 @@ if (process.argv[2] === '--config' && process.argv[3]) {
 
 const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 const rootPath = config.rootPath;
+const repoBranchOverrides = config.repos || {};
+const excludedRepos = new Set((config.excludeRepos || []).map(repo => repo.toLowerCase()));
 const additionalRepos = config.additionalRepos || [];
 const switchToBranch = config.switchToBranch === true; // default false
 
@@ -47,7 +49,37 @@ function getGitRepos(basePath) {
   return repos;
 }
 
+function getConfiguredBranch(repoName) {
+  const configKey = Object.keys(repoBranchOverrides).find(
+    key => key.toLowerCase() === repoName.toLowerCase()
+  );
+  return configKey ? repoBranchOverrides[configKey] : null;
+}
+
+function getStandardBranch(repoPath) {
+  const options = { cwd: repoPath, stdio: 'pipe' };
+  const branches = execSync('git branch --format="%(refname:short)"', options)
+    .toString()
+    .split('\n')
+    .map(branch => branch.trim());
+
+  return ['main', 'master'].find(branch => branches.includes(branch)) || null;
+}
+
+function getBranch(repoName, repoPath) {
+  return getConfiguredBranch(repoName) || getStandardBranch(repoPath);
+}
+
+function isExcludedRepo(repoName) {
+  return excludedRepos.has(repoName.toLowerCase());
+}
+
 function handleRepo(name, repoPath, branch) {
+  if (!branch) {
+    process.stdout.write(`Skipping ${name}: no branch configured and no main/master branch found\n`);
+    return;
+  }
+
   process.stdout.write(`Handling ${name}...`);
   const options = { cwd: repoPath, stdio: 'pipe' };
   try {
@@ -99,18 +131,22 @@ const repoList = getGitRepos(rootPath);
 console.log(`Found ${repoList.length} repos`);
 for (const repo of repoList) {
   const repoName = path.basename(repo);
-  const configKey = Object.keys(config.repos).find(key => key.toLowerCase() === repoName.toLowerCase());
-  if (configKey) {
-    handleRepo(repoName, repo, config.repos[configKey]);
+  if (isExcludedRepo(repoName)) {
+    console.log(`Skipping ${repoName}: excluded by config`);
+    continue;
   }
+  handleRepo(repoName, repo, getBranch(repoName, repo));
 }
 
 for (const addRepo of additionalRepos) {
   const repoPath = addRepo.path;
-  const branch = addRepo.branch;
   const repoName = path.basename(repoPath);
+  if (isExcludedRepo(repoName)) {
+    console.log(`Skipping ${repoName}: excluded by config`);
+    continue;
+  }
   if (fs.existsSync(path.join(repoPath, '.git'))) {
-    handleRepo(repoName, repoPath, branch);
+    handleRepo(repoName, repoPath, addRepo.branch || getBranch(repoName, repoPath));
   } else {
     console.log(`Skipping ${repoName}: not a git repository`);
   }
